@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, ShieldCheck, Smartphone, RefreshCw, LogIn, HardDrive, Sparkles } from 'lucide-react';
 import { authService } from '../services/authService';
 
 export default function ProfileModal({ user, savedCount, totalSpotsCount, onClose, onUserUpdated, onOpenWelcome }) {
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.overflow = 'hidden';
+    return () => {
+      if (mainContent) mainContent.style.overflow = '';
+    };
+  }, []);
+
   const [upgrading, setUpgrading] = useState(false);
   const [customName, setCustomName] = useState(user?.displayName || '');
   const [isEditingName, setIsEditingName] = useState(false);

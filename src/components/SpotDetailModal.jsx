@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, Bookmark, Navigation, Share2, Star, Clock, User, Tag } from 'lucide-react';
 import { placesService } from '../services/placesService';
 
 export default function SpotDetailModal({ spot, isSaved, onToggleSave, onClose, userLocation }) {
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.overflow = 'hidden';
+    return () => {
+      if (mainContent) mainContent.style.overflow = '';
+    };
+  }, []);
+
   if (!spot) return null;
 
   const distanceKm = userLocation

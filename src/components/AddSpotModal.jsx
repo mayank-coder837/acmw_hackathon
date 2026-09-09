@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, PlusCircle, MapPin, Sparkles } from 'lucide-react';
 import { CATEGORIES } from '../data/seedSpots';
 
 export default function AddSpotModal({ userLocation, user, onAddSpot, onClose }) {
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.overflow = 'hidden';
+    return () => {
+      if (mainContent) mainContent.style.overflow = '';
+    };
+  }, []);
+
   const [name, setName] = useState('');
   const [category, setCategory] = useState('food');
   const [description, setDescription] = useState('');

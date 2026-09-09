@@ -39,14 +39,8 @@ export default function App() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Welcome Screen State (defaults to true until dismissed, persists in localStorage)
-  const [showWelcome, setShowWelcome] = useState(() => {
-    try {
-      return !localStorage.getItem('blip_welcome_dismissed');
-    } catch {
-      return true;
-    }
-  });
+  // Welcome Screen State — always show on every page load
+  const [showWelcome, setShowWelcome] = useState(true);
 
   // Network & Location
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
