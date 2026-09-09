@@ -10,6 +10,7 @@ import SavedListView from './components/SavedListView';
 import LiveFeedView from './components/LiveFeedView';
 import ProfileModal from './components/ProfileModal';
 import LiveToast from './components/LiveToast';
+import RadarHero from './components/RadarHero';
 
 import { authService } from './services/authService';
 import { dbService } from './services/dbService';
@@ -278,6 +279,14 @@ export default function App() {
         {/* Tab 1: Discover Feed (List & Map views) */}
         {activeTab === 'discover' && (
           <div>
+            {/* 21st.dev Sonar Radar Hero Scanner */}
+            <RadarHero
+              activeSpotsCount={filteredSpots.length}
+              cityName={selectedCityPreset}
+              isOnline={isOnline}
+              onViewMap={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+            />
+
             {/* View Switcher Controls */}
             <div className="view-toggle-wrap">
               <div className="view-segment">
