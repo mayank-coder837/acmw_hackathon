@@ -1,6 +1,6 @@
 {
-  "name": "blip — Nearby Now",
-  "short_name": "blip",
+  "name": "Blip — Nearby Now",
+  "short_name": "Blip",
   "description": "Offline-first real-time discovery of nearby food, events, and cool spots.",
   "start_url": "/",
   "display": "standalone",

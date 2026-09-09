@@ -21,7 +21,7 @@ export default function Header({
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span className="brand-title">blip</span>
+              <span className="brand-title">Blip</span>
               <span className="brand-tag">nearby now</span>
             </div>
           </div>
