@@ -11,6 +11,7 @@ import LiveFeedView from './components/LiveFeedView';
 import ProfileModal from './components/ProfileModal';
 import LiveToast from './components/LiveToast';
 import RadarHero from './components/RadarHero';
+import WelcomePage from './components/WelcomePage';
 
 import { authService } from './services/authService';
 import { dbService } from './services/dbService';
@@ -37,6 +38,15 @@ export default function App() {
   const [highlightedSpotId, setHighlightedSpotId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Welcome Screen State (defaults to true until dismissed, persists in localStorage)
+  const [showWelcome, setShowWelcome] = useState(() => {
+    try {
+      return !localStorage.getItem('blip_welcome_dismissed');
+    } catch {
+      return true;
+    }
+  });
 
   // Network & Location
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -253,6 +263,30 @@ export default function App() {
     return spots.filter((s) => savedSpotIds.includes(s.id));
   }, [spots, savedSpotIds]);
 
+  // Enter App from Welcome Page
+  const handleEnterApp = (chosenCity) => {
+    if (chosenCity && chosenCity !== selectedCityPreset) {
+      handleCityChange(chosenCity);
+    }
+    try {
+      localStorage.setItem('blip_welcome_dismissed', 'true');
+    } catch {}
+    setShowWelcome(false);
+  };
+
+  // Render Welcome Page if active
+  if (showWelcome) {
+    return (
+      <div className="app-container">
+        <WelcomePage
+          selectedCity={selectedCityPreset}
+          onSelectCity={handleCityChange}
+          onEnterApp={handleEnterApp}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       {/* Real-time Peer Notification Toasts */}
@@ -268,6 +302,7 @@ export default function App() {
         toggleNetworkSimulation={() => setIsOnline((prev) => !prev)}
         user={user}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenWelcome={() => setShowWelcome(true)}
         selectedCategory={selectedCategory}
         onSelectCategory={(catId) => setSelectedCategory(catId)}
         searchQuery={searchQuery}
@@ -416,6 +451,7 @@ export default function App() {
               totalSpotsCount={spots.length}
               onClose={() => setActiveTab('discover')}
               onUserUpdated={(updated) => setUser(updated)}
+              onOpenWelcome={() => setShowWelcome(true)}
             />
           </div>
         )}
@@ -462,6 +498,7 @@ export default function App() {
           totalSpotsCount={spots.length}
           onClose={() => setIsProfileOpen(false)}
           onUserUpdated={(updated) => setUser(updated)}
+          onOpenWelcome={() => setShowWelcome(true)}
         />
       )}
 

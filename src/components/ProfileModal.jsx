@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, ShieldCheck, Smartphone, RefreshCw, LogIn, HardDrive } from 'lucide-react';
+import { X, CheckCircle, ShieldCheck, Smartphone, RefreshCw, LogIn, HardDrive, Sparkles } from 'lucide-react';
 import { authService } from '../services/authService';
 
-export default function ProfileModal({ user, savedCount, totalSpotsCount, onClose, onUserUpdated }) {
+export default function ProfileModal({ user, savedCount, totalSpotsCount, onClose, onUserUpdated, onOpenWelcome }) {
   const [upgrading, setUpgrading] = useState(false);
   const [customName, setCustomName] = useState(user?.displayName || '');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -182,6 +182,27 @@ export default function ProfileModal({ user, savedCount, totalSpotsCount, onClos
           </div>
           IndexedDB + Service Worker cache is active. All discoveries and saved spots are stored locally and will persist through restarts.
         </div>
+
+        {/* Revisit Welcome Tour */}
+        {onOpenWelcome && (
+          <button
+            className="btn-secondary"
+            onClick={() => {
+              onClose();
+              onOpenWelcome();
+            }}
+            style={{
+              fontSize: '0.82rem',
+              marginBottom: '10px',
+              background: 'rgba(6, 182, 212, 0.1)',
+              borderColor: 'rgba(6, 182, 212, 0.4)',
+              color: '#38bdf8'
+            }}
+          >
+            <Sparkles size={14} color="#06b6d4" />
+            <span>Revisit Welcome & Sonar Tour</span>
+          </button>
+        )}
 
         {/* Multi-user demo helper */}
         <button

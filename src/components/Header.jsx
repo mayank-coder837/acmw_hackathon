@@ -7,6 +7,7 @@ export default function Header({
   toggleNetworkSimulation,
   user,
   onOpenProfile,
+  onOpenWelcome,
   selectedCategory,
   onSelectCategory,
   searchQuery,
@@ -15,7 +16,12 @@ export default function Header({
   return (
     <header className="app-header">
       <div className="header-top">
-        <div className="brand-group" onClick={() => onSelectCategory('all')}>
+        <div
+          className="brand-group"
+          onClick={onOpenWelcome || (() => onSelectCategory('all'))}
+          style={{ cursor: 'pointer' }}
+          title="Click to view Welcome Tour"
+        >
           <div className="brand-logo">
             <Sparkles size={18} color="#ffffff" />
           </div>
