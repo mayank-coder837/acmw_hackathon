@@ -58,15 +58,6 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, on
           <ArrowRight size={13} />
         </button>
 
-        {/* Sign In Button */}
-        <button
-          className="welcome-signin-btn"
-          onClick={onOpenAuth}
-          title="Sign in or create an account"
-        >
-          <ShieldCheck size={13} />
-          <span>{user && !user.isAnonymous ? user.displayName : 'Sign In'}</span>
-        </button>
       </header>
 
       {/* Scrollable Welcome Content */}
