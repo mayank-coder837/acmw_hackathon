@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&display=swap');
 @import "tailwindcss";
 @tailwind base;
 @tailwind components;
@@ -288,36 +289,26 @@ body::-webkit-scrollbar {
 }
 
 .brand-logo {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
-  box-shadow: 0 0 14px rgba(6, 182, 212, 0.5);
+  background: transparent;
   position: relative;
 }
 
 .brand-title {
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 2rem;
+  font-weight: 400;
   letter-spacing: -0.5px;
+  line-height: 44px;
   background: linear-gradient(135deg, #ffffff 40%, #38bdf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.brand-tag {
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 6px;
-  background: rgba(6, 182, 212, 0.15);
-  color: #38bdf8;
-  border-radius: 6px;
-  border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
 .header-actions {
