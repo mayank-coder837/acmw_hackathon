@@ -36,6 +36,29 @@ npm run dev
 Open your browser at:  
 👉 **http://localhost:5173**
 
+### Sign-in in local/demo mode
+
+The project now includes a safe fallback auth flow so the sign-in button works even before Firebase credentials are configured. If Firebase is not set up yet, the app uses a local demo identity store in browser storage instead of crashing or silently failing.
+
+- You can sign in with any email/password pair created during a sign-up flow in this browser.
+- The app preserves the session in local storage for quick local testing.
+- Real Firebase auth still activates automatically when valid environment values are added.
+
+### Add real Firebase auth
+
+Create a `.env` file using the template in `.env.example` and add your Firebase values:
+
+```bash
+VITE_FIREBASE_API_KEY=your_api_key_here
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+Then enable Email/Password authentication in the Firebase console and reload the app.
+
 ---
 
 ## 👥 Multi-User Local Testing
