@@ -202,8 +202,18 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+html,
 body {
   font-family: var(--font-family);
   background-color: var(--bg-primary);
@@ -212,6 +222,16 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   user-select: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 /* App Container */
@@ -227,6 +247,15 @@ body {
   border-left: 1px solid rgba(255, 255, 255, 0.05);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.app-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 @media (min-width: 768px) {
@@ -408,8 +437,20 @@ body {
 .main-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 14px 16px;
   padding-bottom: 90px;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.main-content::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 /* View Switcher (Feed vs Map) */
@@ -820,6 +861,17 @@ body {
   overflow-y: auto;
   box-shadow: var(--shadow-card);
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-content::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 @media (min-width: 640px) {
@@ -1053,3 +1105,17 @@ body {
   font-size: 1.8rem;
   color: var(--accent-primary);
 }
+
+/* Scrollbar Removal Utility */
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+

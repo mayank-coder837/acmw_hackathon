@@ -90,7 +90,7 @@ export default function AddSpotModal({ userLocation, user, onAddSpot, onClose })
 
           <div className="form-group">
             <label className="form-label">Category</label>
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
+            <div className="no-scrollbar" style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
               {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
                 <button
                   type="button"
