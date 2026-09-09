@@ -212,7 +212,7 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, us
           <div className="welcome-trust-row">
             <div className="trust-item">
               <ShieldCheck size={12} className="text-emerald-400" />
-              <span>{user && !user.isAnonymous ? `Hi, ${user.displayName}` : 'Free Account Available'}</span>
+              <span>{user && !user.isAnonymous ? `Hi, ${user.displayName}` : 'Guest Session Ready'}</span>
             </div>
             <span className="trust-dot">•</span>
             <div className="trust-item">
