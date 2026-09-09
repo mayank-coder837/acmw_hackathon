@@ -25,6 +25,10 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, on
   };
 
   const handleStart = () => {
+    if (!user || user.isAnonymous) {
+      onOpenAuth?.();
+      return;
+    }
     onEnterApp(activeCity);
   };
 
