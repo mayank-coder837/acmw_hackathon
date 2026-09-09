@@ -38,8 +38,8 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity }) 
       {/* Top Bar Navigation */}
       <header className="welcome-header">
         <div className="brand-group">
-          <div className="brand-logo">
-            <Sparkles size={18} color="#ffffff" />
+          <div className="brand-logo" style={{ background: 'transparent', padding: 0, overflow: 'visible' }}>
+            <img src="/logo-blue.png" alt="Blip Logo" style={{ width: 32, height: 32, objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(6,182,212,0.9))' }} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

@@ -22,8 +22,8 @@ export default function Header({
           style={{ cursor: 'pointer' }}
           title="Click to view Welcome Tour"
         >
-          <div className="brand-logo">
-            <Sparkles size={18} color="#ffffff" />
+          <div className="brand-logo" style={{ background: 'transparent', padding: 0, overflow: 'visible' }}>
+            <img src="/logo-neon.png" alt="Blip Logo" style={{ width: 32, height: 32, objectFit: 'contain', filter: 'drop-shadow(0 0 6px rgba(6,182,212,0.7))' }} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

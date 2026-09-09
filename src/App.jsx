@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Map, List, Plus, Sparkles, Navigation } from 'lucide-react';
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
@@ -271,16 +272,34 @@ export default function App() {
   // Render Welcome Page if active
   if (showWelcome) {
     return (
-      <WelcomePage
-        selectedCity={selectedCityPreset}
-        onSelectCity={handleCityChange}
-        onEnterApp={handleEnterApp}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="welcome"
+          initial={{ opacity: 0, scale: 1.04, filter: 'blur(12px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, scale: 0.96, filter: 'blur(16px)' }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
+        >
+          <WelcomePage
+            selectedCity={selectedCityPreset}
+            onSelectCity={handleCityChange}
+            onEnterApp={handleEnterApp}
+          />
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
   return (
-    <div className="app-container">
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="app"
+        className="app-container"
+        initial={{ opacity: 0, scale: 1.03, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
       {/* Real-time Peer Notification Toasts */}
       <LiveToast
         toasts={toasts}
@@ -303,150 +322,181 @@ export default function App() {
 
       {/* Main View Area */}
       <main className="main-content">
-        {/* Tab 1: Discover Feed (List & Map views) */}
-        {activeTab === 'discover' && (
-          <div>
-            {/* 21st.dev Sonar Radar Hero Scanner */}
-            <RadarHero
-              activeSpotsCount={filteredSpots.length}
-              cityName={selectedCityPreset}
-              isOnline={isOnline}
-              viewMode={viewMode}
-              onViewMap={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-            />
+        <AnimatePresence mode="wait">
+          {/* Tab 1: Discover Feed (List & Map views) */}
+          {activeTab === 'discover' && (
+            <motion.div
+              key="discover"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* 21st.dev Sonar Radar Hero Scanner */}
+              <RadarHero
+                activeSpotsCount={filteredSpots.length}
+                cityName={selectedCityPreset}
+                isOnline={isOnline}
+                viewMode={viewMode}
+                onViewMap={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+              />
 
-            {/* View Switcher Controls */}
-            <div className="view-toggle-wrap">
-              <div className="view-segment">
-                <button
-                  className={`segment-btn ${viewMode === 'list' ? 'active' : ''}`}
-                  onClick={() => setViewMode('list')}
-                >
-                  <List size={14} />
-                  <span>List</span>
-                </button>
-                <button
-                  className={`segment-btn ${viewMode === 'map' ? 'active' : ''}`}
-                  onClick={() => setViewMode('map')}
-                >
-                  <Map size={14} />
-                  <span>Map</span>
-                </button>
+              {/* View Switcher Controls */}
+              <div className="view-toggle-wrap">
+                <div className="view-segment">
+                  <button
+                    className={`segment-btn ${viewMode === 'list' ? 'active' : ''}`}
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List size={14} />
+                    <span>List</span>
+                  </button>
+                  <button
+                    className={`segment-btn ${viewMode === 'map' ? 'active' : ''}`}
+                    onClick={() => setViewMode('map')}
+                  >
+                    <Map size={14} />
+                    <span>Map</span>
+                  </button>
+                </div>
+
+                {/* Location / Preset selector */}
+                <div className="location-indicator">
+                  <Navigation size={12} color="#38bdf8" />
+                  <select
+                    value={selectedCityPreset}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                  >
+                    {CITY_PRESETS.map((p) => (
+                      <option key={p.name} value={p.name}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              {/* Location / Preset selector */}
-              <div className="location-indicator">
-                <Navigation size={12} color="#38bdf8" />
-                <select
-                  value={selectedCityPreset}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                >
-                  {CITY_PRESETS.map((p) => (
-                    <option key={p.name} value={p.name}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+              {/* List View */}
+              {viewMode === 'list' && (
+                <div>
+                  {filteredSpots.length > 0 ? (
+                    <div className="spots-grid">
+                      {filteredSpots.map((spot) => (
+                        <SpotCard
+                          key={spot.id}
+                          spot={spot}
+                          isSaved={savedSpotIds.includes(spot.id)}
+                          onToggleSave={handleToggleSave}
+                          onSelectSpot={setSelectedSpot}
+                          userLocation={userLocation}
+                          isHighlighted={highlightedSpotId === spot.id}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-state">
+                      <div className="empty-icon">
+                        <Sparkles size={32} />
+                      </div>
+                      <h3>No spots found</h3>
+                      <p>Try searching for a different keyword or category.</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {/* List View */}
-            {viewMode === 'list' && (
-              <div>
-                {filteredSpots.length > 0 ? (
-                  <div className="spots-grid">
-                    {filteredSpots.map((spot) => (
+              {/* Map View */}
+              {viewMode === 'map' && (
+                <div className="relative">
+                  <MapView
+                    spots={filteredSpots}
+                    userLocation={userLocation}
+                    selectedSpot={selectedSpot}
+                    onSelectSpot={setSelectedSpot}
+                    highlightedSpotId={highlightedSpotId}
+                  />
+                  {/* Floating Preview Card on Map */}
+                  {filteredSpots.length > 0 && (
+                    <div className="mt-3">
+                      <div className="text-[0.72rem] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                        <span>Selected Spot on Map:</span>
+                        <span className="text-cyan-400">Tap pin to switch</span>
+                      </div>
                       <SpotCard
-                        key={spot.id}
-                        spot={spot}
-                        isSaved={savedSpotIds.includes(spot.id)}
+                        spot={selectedSpot || filteredSpots[0]}
+                        isSaved={savedSpotIds.includes((selectedSpot || filteredSpots[0]).id)}
                         onToggleSave={handleToggleSave}
                         onSelectSpot={setSelectedSpot}
                         userLocation={userLocation}
-                        isHighlighted={highlightedSpotId === spot.id}
+                        isHighlighted={true}
                       />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-state">
-                    <div className="empty-icon">
-                      <Sparkles size={32} />
                     </div>
-                    <h3>No spots found</h3>
-                    <p>Try searching for a different keyword or category.</p>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </motion.div>
+          )}
 
-            {/* Map View */}
-            {viewMode === 'map' && (
-              <div className="relative">
-                <MapView
-                  spots={filteredSpots}
-                  userLocation={userLocation}
-                  selectedSpot={selectedSpot}
-                  onSelectSpot={setSelectedSpot}
-                  highlightedSpotId={highlightedSpotId}
-                />
-                {/* Floating Preview Card on Map */}
-                {filteredSpots.length > 0 && (
-                  <div className="mt-3">
-                    <div className="text-[0.72rem] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
-                      <span>Selected Spot on Map:</span>
-                      <span className="text-cyan-400">Tap pin to switch</span>
-                    </div>
-                    <SpotCard
-                      spot={selectedSpot || filteredSpots[0]}
-                      isSaved={savedSpotIds.includes((selectedSpot || filteredSpots[0]).id)}
-                      onToggleSave={handleToggleSave}
-                      onSelectSpot={setSelectedSpot}
-                      userLocation={userLocation}
-                      isHighlighted={true}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+          {/* Tab 2: Live Activity Feed */}
+          {activeTab === 'feed' && (
+            <motion.div
+              key="feed"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <LiveFeedView
+                activities={activities}
+                isOnline={isOnline}
+                onSelectSpotById={(id) => {
+                  const spot = spots.find((s) => s.id === id);
+                  if (spot) setSelectedSpot(spot);
+                }}
+              />
+            </motion.div>
+          )}
 
-        {/* Tab 2: Live Activity Feed */}
-        {activeTab === 'feed' && (
-          <LiveFeedView
-            activities={activities}
-            isOnline={isOnline}
-            onSelectSpotById={(id) => {
-              const spot = spots.find((s) => s.id === id);
-              if (spot) setSelectedSpot(spot);
-            }}
-          />
-        )}
+          {/* Tab 3: My Saved Spots (Offline-Ready) */}
+          {activeTab === 'saved' && (
+            <motion.div
+              key="saved"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <SavedListView
+                savedSpots={savedSpotsList}
+                onToggleSave={handleToggleSave}
+                onSelectSpot={setSelectedSpot}
+                userLocation={userLocation}
+                onGoToDiscover={() => setActiveTab('discover')}
+              />
+            </motion.div>
+          )}
 
-        {/* Tab 3: My Saved Spots (Offline-Ready) */}
-        {activeTab === 'saved' && (
-          <SavedListView
-            savedSpots={savedSpotsList}
-            onToggleSave={handleToggleSave}
-            onSelectSpot={setSelectedSpot}
-            userLocation={userLocation}
-            onGoToDiscover={() => setActiveTab('discover')}
-          />
-        )}
-
-        {/* Tab 4: Profile & Sync Settings */}
-        {activeTab === 'profile' && (
-          <div style={{ padding: '8px 0' }}>
-            <ProfileModal
-              user={user}
-              savedCount={savedSpotIds.length}
-              totalSpotsCount={spots.length}
-              onClose={() => setActiveTab('discover')}
-              onUserUpdated={(updated) => setUser(updated)}
-              onOpenWelcome={() => setShowWelcome(true)}
-            />
-          </div>
-        )}
+          {/* Tab 4: Profile & Sync Settings */}
+          {activeTab === 'profile' && (
+            <motion.div
+              key="profile"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              style={{ padding: '8px 0' }}
+            >
+              <ProfileModal
+                user={user}
+                savedCount={savedSpotIds.length}
+                totalSpotsCount={spots.length}
+                onClose={() => setActiveTab('discover')}
+                onUserUpdated={(updated) => setUser(updated)}
+                onOpenWelcome={() => setShowWelcome(true)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Floating Action Button: Drop a Blip */}
@@ -507,6 +557,7 @@ export default function App() {
         savedCount={savedSpotIds.length}
         liveCount={activities.length}
       />
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
