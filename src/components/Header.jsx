@@ -23,9 +23,14 @@ export default function Header({
           title="Click to view Welcome Tour"
         >
           <div className="brand-logo" style={{ background: 'transparent', padding: 0, overflow: 'visible' }}>
-            <img src="/logo-neon.png" alt="Blip Logo" style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 0 6px rgba(6,182,212,0.7))' }} />
+            <img src="/logo-neon.png" alt="Blip Logo" style={{ width: 32, height: 32, objectFit: 'contain', filter: 'drop-shadow(0 0 6px rgba(6,182,212,0.7))' }} />
           </div>
-          <span className="brand-title">Blip</span>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="brand-title">Blip</span>
+              <span className="brand-tag">nearby now</span>
+            </div>
+          </div>
         </div>
 
         <div className="header-actions">
