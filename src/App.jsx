@@ -298,6 +298,17 @@ export default function App() {
             onOpenAuth={() => setShowAuth(true)}
             user={user}
           />
+
+          {showAuth && (
+            <AuthModal
+              onClose={() => setShowAuth(false)}
+              onAuthSuccess={(nextUser) => {
+                setUser(nextUser);
+                setShowAuth(false);
+                handleEnterApp(selectedCityPreset);
+              }}
+            />
+          )}
         </motion.div>
       </AnimatePresence>
     );
