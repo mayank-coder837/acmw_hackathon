@@ -21,10 +21,9 @@ export default function MapView({ spots, userLocation, selectedSpot, onSelectSpo
       zoomControl: false
     });
 
-    // Add CartoDB Dark Matter tiles (sleek dark aesthetic that matches our app)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains: 'abcd',
+    // Add free OpenStreetMap tiles (no API key required) with dark CSS styling
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(map);
 

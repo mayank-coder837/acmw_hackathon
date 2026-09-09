@@ -284,6 +284,7 @@ export default function App() {
               activeSpotsCount={filteredSpots.length}
               cityName={selectedCityPreset}
               isOnline={isOnline}
+              viewMode={viewMode}
               onViewMap={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
             />
 
@@ -353,13 +354,32 @@ export default function App() {
 
             {/* Map View */}
             {viewMode === 'map' && (
-              <MapView
-                spots={filteredSpots}
-                userLocation={userLocation}
-                selectedSpot={selectedSpot}
-                onSelectSpot={setSelectedSpot}
-                highlightedSpotId={highlightedSpotId}
-              />
+              <div className="relative">
+                <MapView
+                  spots={filteredSpots}
+                  userLocation={userLocation}
+                  selectedSpot={selectedSpot}
+                  onSelectSpot={setSelectedSpot}
+                  highlightedSpotId={highlightedSpotId}
+                />
+                {/* Floating Preview Card on Map */}
+                {filteredSpots.length > 0 && (
+                  <div className="mt-3">
+                    <div className="text-[0.72rem] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                      <span>Selected Spot on Map:</span>
+                      <span className="text-cyan-400">Tap pin to switch</span>
+                    </div>
+                    <SpotCard
+                      spot={selectedSpot || filteredSpots[0]}
+                      isSaved={savedSpotIds.includes((selectedSpot || filteredSpots[0]).id)}
+                      onToggleSave={handleToggleSave}
+                      onSelectSpot={setSelectedSpot}
+                      userLocation={userLocation}
+                      isHighlighted={true}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}
