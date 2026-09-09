@@ -13,6 +13,7 @@ import ProfileModal from './components/ProfileModal';
 import LiveToast from './components/LiveToast';
 import RadarHero from './components/RadarHero';
 import WelcomePage from './components/WelcomePage';
+import AuthModal from './components/AuthModal';
 
 import { authService } from './services/authService';
 import { dbService } from './services/dbService';
@@ -23,6 +24,7 @@ import { CITY_PRESETS } from './data/seedSpots';
 export default function App() {
   // User Session
   const [user, setUser] = useState(() => authService.getCurrentUser());
+  const [showAuth, setShowAuth] = useState(false);
 
   // App Data
   const [spots, setSpots] = useState([]);
@@ -293,6 +295,7 @@ export default function App() {
             selectedCity={selectedCityPreset}
             onSelectCity={handleCityChange}
             onEnterApp={handleEnterApp}
+            onOpenAuth={() => setShowAuth(true)}
             user={user}
           />
         </motion.div>
@@ -550,6 +553,16 @@ export default function App() {
           onClose={() => setIsProfileOpen(false)}
           onUserUpdated={(updated) => setUser(updated)}
           onOpenWelcome={() => setShowWelcome(true)}
+        />
+      )}
+
+      {showAuth && (
+        <AuthModal
+          onClose={() => setShowAuth(false)}
+          onAuthSuccess={(nextUser) => {
+            setUser(nextUser);
+            setShowAuth(false);
+          }}
         />
       )}
 

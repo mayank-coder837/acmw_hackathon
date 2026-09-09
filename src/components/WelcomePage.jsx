@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { CITY_PRESETS } from '../data/seedSpots';
 
-export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, user }) {
+export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, user, onOpenAuth }) {
   const [activeCity, setActiveCity] = useState(selectedCity || 'Downtown Dubai');
 
   const handleCityPick = (cityName) => {
@@ -49,14 +49,24 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, us
           </div>
         </div>
 
-        <button
-          className="welcome-skip-btn"
-          onClick={handleStart}
-          title="Skip directly to the live discovery feed"
-        >
-          <span>Skip to Map</span>
-          <ArrowRight size={13} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            className="welcome-skip-btn"
+            onClick={() => onOpenAuth ? onOpenAuth() : handleStart()}
+            title="Sign in or create a trial account"
+            style={{ background: 'rgba(14, 165, 233, 0.12)', borderColor: 'rgba(14, 165, 233, 0.4)', color: '#bae6fd' }}
+          >
+            <span>Sign In</span>
+          </button>
+          <button
+            className="welcome-skip-btn"
+            onClick={handleStart}
+            title="Skip directly to the live discovery feed"
+          >
+            <span>Skip to Map</span>
+            <ArrowRight size={13} />
+          </button>
+        </div>
 
       </header>
 
@@ -204,6 +214,20 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, us
             <span className="btn-text">
               <Sparkles size={18} />
               <span>Launch Radar & Explore</span>
+              <ArrowRight size={18} />
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="welcome-main-btn"
+            onClick={() => onOpenAuth ? onOpenAuth() : handleStart()}
+            style={{ marginTop: '0.75rem', background: 'rgba(15, 118, 110, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)' }}
+          >
+            <span className="btn-glow" />
+            <span className="btn-text">
+              <ShieldCheck size={18} />
+              <span>Trial Sign In / Sign Up</span>
               <ArrowRight size={18} />
             </span>
           </button>
