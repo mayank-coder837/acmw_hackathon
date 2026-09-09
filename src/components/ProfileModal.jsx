@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, ShieldCheck, Smartphone, RefreshCw, LogIn, LogOut, HardDrive, Sparkles, Mail, BadgeCheck } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { X, ShieldCheck, RefreshCw, HardDrive, Sparkles, Mail, BadgeCheck } from 'lucide-react';
 import { authService } from '../services/authService';
 
-export default function ProfileModal({ user, savedCount, totalSpotsCount, onClose, onUserUpdated, onOpenWelcome, onOpenAuth }) {
+export default function ProfileModal({ user, savedCount, totalSpotsCount, onClose, onUserUpdated, onOpenWelcome }) {
   // Lock background scroll when modal is open
   useEffect(() => {
     const mainContent = document.querySelector('.main-content');
@@ -12,19 +12,6 @@ export default function ProfileModal({ user, savedCount, totalSpotsCount, onClos
     };
   }, []);
 
-  const [signingOut, setSigningOut] = useState(false);
-
-  const handleSignOut = async () => {
-    if (!window.confirm('Sign out of your Blip account? You\'ll continue as an anonymous explorer.')) return;
-    setSigningOut(true);
-    const result = await authService.signOut();
-    setSigningOut(false);
-    if (result.success) {
-      onUserUpdated(authService.getCurrentUser());
-      onClose();
-    }
-  };
-
   const handleResetSession = () => {
     if (window.confirm('Reset this anonymous session to generate a fresh new explorer identity? (Great for multi-user demo)')) {
       const freshUser = authService.resetAnonymousSession();
@@ -32,8 +19,6 @@ export default function ProfileModal({ user, savedCount, totalSpotsCount, onClos
       onClose();
     }
   };
-
-  const isRealUser = !user?.isAnonymous;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -77,11 +62,6 @@ export default function ProfileModal({ user, savedCount, totalSpotsCount, onClos
             }}
           >
             {user?.initials || 'ME'}
-            {isRealUser && user?.emailVerified && (
-              <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#10b981', borderRadius: '50%', padding: 2, display: 'flex' }}>
-                <BadgeCheck size={12} color="white" />
-              </span>
-            )}
           </div>
 
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -104,89 +84,11 @@ export default function ProfileModal({ user, savedCount, totalSpotsCount, onClos
               </span>
             </div>
 
-            {isRealUser && user?.email && (
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Mail size={10} /> {user.email}
-              </div>
-            )}
-            {!isRealUser && (
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                UID: {user?.uid?.substring(0, 16)}...
-              </div>
-            )}
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+              UID: {user?.uid?.substring(0, 16)}...
+            </div>
           </div>
         </div>
-
-        {/* Auth Banner */}
-        {user?.isAnonymous ? (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.1))',
-              border: '1px solid rgba(6, 182, 212, 0.3)',
-              borderRadius: 'var(--radius-md)',
-              padding: '16px',
-              marginBottom: '18px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Smartphone size={18} color="#38bdf8" />
-              <h3 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#38bdf8' }}>
-                Sync your spots across devices
-              </h3>
-            </div>
-
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '14px' }}>
-              Create a free account to sync your {savedCount} saved spots across all your devices. Your current anonymous data is preserved.
-            </p>
-
-            <button
-              className="btn-primary"
-              onClick={onOpenAuth}
-              style={{ fontSize: '0.85rem', padding: '10px 14px' }}
-            >
-              <LogIn size={15} />
-              Sign In / Create Account
-            </button>
-          </div>
-        ) : (
-          <div
-            style={{
-              background: 'rgba(16, 185, 129, 0.08)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: 'var(--radius-md)',
-              padding: '14px',
-              marginBottom: '18px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: user?.emailVerified ? 0 : 10 }}>
-              <CheckCircle size={20} color="#34d399" />
-              <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34d399' }}>
-                  {user?.emailVerified ? 'Account Verified & Synced' : 'Account Linked'}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  {user?.email}
-                </div>
-              </div>
-            </div>
-
-            {!user?.emailVerified && (
-              <p style={{ fontSize: '0.74rem', color: '#fbbf24', marginTop: 8, marginLeft: 30 }}>
-                ⚠ Please verify your email to unlock full sync features.
-              </p>
-            )}
-
-            <button
-              className="btn-secondary"
-              onClick={handleSignOut}
-              disabled={signingOut}
-              style={{ marginTop: 12, fontSize: '0.8rem', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.3)' }}
-            >
-              <LogOut size={14} />
-              {signingOut ? 'Signing out...' : 'Sign Out'}
-            </button>
-          </div>
-        )}
 
         {/* Stats Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '20px' }}>

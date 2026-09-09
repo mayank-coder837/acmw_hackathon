@@ -13,7 +13,6 @@ import ProfileModal from './components/ProfileModal';
 import LiveToast from './components/LiveToast';
 import RadarHero from './components/RadarHero';
 import WelcomePage from './components/WelcomePage';
-import AuthModal from './components/AuthModal';
 
 import { authService } from './services/authService';
 import { dbService } from './services/dbService';
@@ -24,7 +23,6 @@ import { CITY_PRESETS } from './data/seedSpots';
 export default function App() {
   // User Session
   const [user, setUser] = useState(() => authService.getCurrentUser());
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // App Data
   const [spots, setSpots] = useState([]);
@@ -295,7 +293,6 @@ export default function App() {
             selectedCity={selectedCityPreset}
             onSelectCity={handleCityChange}
             onEnterApp={handleEnterApp}
-            onOpenAuth={() => setShowAuthModal(true)}
             user={user}
           />
         </motion.div>
@@ -326,7 +323,6 @@ export default function App() {
         user={user}
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenWelcome={() => setShowWelcome(true)}
-        onOpenAuth={() => setShowAuthModal(true)}
         selectedCategory={selectedCategory}
         onSelectCategory={(catId) => setSelectedCategory(catId)}
         searchQuery={searchQuery}
@@ -554,18 +550,6 @@ export default function App() {
           onClose={() => setIsProfileOpen(false)}
           onUserUpdated={(updated) => setUser(updated)}
           onOpenWelcome={() => setShowWelcome(true)}
-          onOpenAuth={() => { setIsProfileOpen(false); setShowAuthModal(true); }}
-        />
-      )}
-
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal
-          onClose={() => setShowAuthModal(false)}
-          onAuthSuccess={(authUser) => {
-            setUser(authUser);
-            setShowAuthModal(false);
-          }}
         />
       )}
 

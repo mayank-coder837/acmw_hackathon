@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { CITY_PRESETS } from '../data/seedSpots';
 
-export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, onOpenAuth, user }) {
+export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, user }) {
   const [activeCity, setActiveCity] = useState(selectedCity || 'Downtown Dubai');
 
   const handleCityPick = (cityName) => {
@@ -25,10 +25,6 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, on
   };
 
   const handleStart = () => {
-    if (!user || user.isAnonymous) {
-      onOpenAuth?.();
-      return;
-    }
     onEnterApp(activeCity);
   };
 
