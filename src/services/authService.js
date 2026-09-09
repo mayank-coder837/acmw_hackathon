@@ -11,7 +11,7 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth, isFirebaseConfigured } from '../lib/firebase';
 
 const ANON_STORAGE_KEY = 'blip_anon_user';
 
@@ -93,13 +93,77 @@ export function validatePassword(password) {
 
 let _currentLocalUser = null;
 
+const DEMO_ACCOUNTS_KEY = 'blip_demo_accounts';
+const DEMO_SESSION_KEY = 'blip_demo_session_user';
+
+function getDemoAccounts() {
+  try {
+    const stored = localStorage.getItem(DEMO_ACCOUNTS_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function saveDemoAccounts(accounts) {
+  try {
+    localStorage.setItem(DEMO_ACCOUNTS_KEY, JSON.stringify(accounts));
+  } catch (_) {}
+}
+
+function getStoredDemoUser() {
+  try {
+    const stored = localStorage.getItem(DEMO_SESSION_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function persistDemoUser(user) {
+  try {
+    localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(user));
+  } catch (_) {}
+}
+
+function clearDemoUser() {
+  try {
+    localStorage.removeItem(DEMO_SESSION_KEY);
+  } catch (_) {}
+}
+
+function createDemoUser(email, displayName) {
+  const finalEmail = String(email).trim().toLowerCase();
+  const name = (displayName || finalEmail.split('@')[0]).trim();
+  return {
+    uid: `demo_${Math.random().toString(36).slice(2, 11)}_${Date.now()}`,
+    displayName: name,
+    email: finalEmail,
+    isAnonymous: false,
+    emailVerified: true,
+    avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+    initials: name.substring(0, 2).toUpperCase(),
+    provider: 'email',
+    createdAt: Date.now(),
+  };
+}
+
 export const authService = {
   // Returns the current user (Firebase or anonymous).
   // This is sync — returns cached value. Real state comes from onAuthStateChanged.
   getCurrentUser() {
-    if (auth.currentUser) {
+    if (isFirebaseConfigured && auth && auth.currentUser) {
       return firebaseUserToBlip(auth.currentUser);
     }
+
+    if (!isFirebaseConfigured) {
+      const storedDemoUser = getStoredDemoUser();
+      if (storedDemoUser) {
+        _currentLocalUser = storedDemoUser;
+        return storedDemoUser;
+      }
+    }
+
     if (!_currentLocalUser) {
       _currentLocalUser = getOrCreateAnonUser();
     }
@@ -109,6 +173,12 @@ export const authService = {
   // Subscribe to real-time auth state changes.
   // callback(blipUser) is called immediately and on every change.
   onAuthStateChanged(callback) {
+    if (!isFirebaseConfigured) {
+      const current = this.getCurrentUser();
+      callback(current);
+      return () => {};
+    }
+
     return onAuthStateChanged(auth, (fbUser) => {
       if (fbUser) {
         _currentLocalUser = null;
@@ -124,6 +194,22 @@ export const authService = {
   // Sign up with email and password. Sends verification email.
   // Returns: { success: true } or { error: string }
   async signUp(email, password, displayName) {
+    if (!isFirebaseConfigured) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const accounts = getDemoAccounts();
+      if (accounts[normalizedEmail]) {
+        return { error: 'This email is already registered. Try signing in instead.' };
+      }
+
+      const user = createDemoUser(normalizedEmail, displayName);
+      accounts[normalizedEmail] = { email: normalizedEmail, password, displayName: user.displayName };
+      saveDemoAccounts(accounts);
+      persistDemoUser(user);
+      _currentLocalUser = user;
+      window.dispatchEvent(new CustomEvent('blip_auth_changed', { detail: user }));
+      return { success: true, user, requiresVerification: false };
+    }
+
     try {
       const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
       if (displayName) {
@@ -139,10 +225,32 @@ export const authService = {
   // Sign in with email and password.
   // Returns: { success: true, user } or { error: string }
   async signIn(email, password) {
+    if (!isFirebaseConfigured) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const accounts = getDemoAccounts();
+      const account = accounts[normalizedEmail];
+
+      if (!account) {
+        return { error: 'Incorrect email or password. Please try again.' };
+      }
+
+      if (String(account.password) !== String(password)) {
+        return { error: 'Incorrect email or password. Please try again.' };
+      }
+
+      const user = {
+        ...createDemoUser(normalizedEmail, account.displayName || normalizedEmail.split('@')[0]),
+        uid: `demo_${normalizedEmail.replace(/[^a-z0-9]/gi, '').slice(0, 10)}_${Date.now()}`,
+      };
+      persistDemoUser(user);
+      _currentLocalUser = user;
+      window.dispatchEvent(new CustomEvent('blip_auth_changed', { detail: user }));
+      return { success: true, user };
+    }
+
     try {
       const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
       if (!credential.user.emailVerified) {
-        // Sign back out — don't let unverified users through
         await firebaseSignOut(auth);
         return {
           error: 'Please verify your email before signing in. Check your inbox for the verification link.',
@@ -157,6 +265,15 @@ export const authService = {
 
   // Send password reset email.
   async sendPasswordReset(email) {
+    if (!isFirebaseConfigured) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const accounts = getDemoAccounts();
+      if (!accounts[normalizedEmail]) {
+        return { error: 'No account exists for this email address.' };
+      }
+      return { success: true };
+    }
+
     try {
       await sendPasswordResetEmail(auth, email.trim());
       return { success: true };
@@ -167,6 +284,10 @@ export const authService = {
 
   // Resend email verification to the currently signed-in (unverified) user.
   async resendVerification() {
+    if (!isFirebaseConfigured) {
+      return { success: true };
+    }
+
     try {
       if (auth.currentUser) {
         await sendEmailVerification(auth.currentUser);
@@ -181,7 +302,10 @@ export const authService = {
   // Sign out — reverts to anonymous local session.
   async signOut() {
     try {
-      await firebaseSignOut(auth);
+      if (isFirebaseConfigured && auth) {
+        await firebaseSignOut(auth);
+      }
+      clearDemoUser();
       _currentLocalUser = null;
       localStorage.removeItem(ANON_STORAGE_KEY);
       const newAnon = getOrCreateAnonUser();
@@ -196,6 +320,7 @@ export const authService = {
   // Reset anonymous session identity (for demo/testing).
   resetAnonymousSession() {
     localStorage.removeItem(ANON_STORAGE_KEY);
+    clearDemoUser();
     _currentLocalUser = null;
     const newUser = getOrCreateAnonUser();
     _currentLocalUser = newUser;

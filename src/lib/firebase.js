@@ -20,7 +20,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || 'YOUR_APP_ID',
 };
 
-const app = initializeApp(firebaseConfig);
+const hasPlaceholderValues = Object.values(firebaseConfig).some((value) => {
+  if (!value) return true;
+  return /YOUR_|your_|example|placeholder|project_id|api_key|sender_id/i.test(String(value));
+});
 
-export const auth = getAuth(app);
+export const isFirebaseConfigured = !hasPlaceholderValues;
+
+const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null;
 export default app;
