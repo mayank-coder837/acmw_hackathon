@@ -277,13 +277,11 @@ export default function App() {
   // Render Welcome Page if active
   if (showWelcome) {
     return (
-      <div className="app-container">
-        <WelcomePage
-          selectedCity={selectedCityPreset}
-          onSelectCity={handleCityChange}
-          onEnterApp={handleEnterApp}
-        />
-      </div>
+      <WelcomePage
+        selectedCity={selectedCityPreset}
+        onSelectCity={handleCityChange}
+        onEnterApp={handleEnterApp}
+      />
     );
   }
 
