@@ -1,6 +1,8 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Bookmark, Star, MapPin } from 'lucide-react';
 import { placesService } from '../services/placesService';
+import { cn } from '../lib/utils';
 
 export default function SpotCard({ spot, isSaved, onToggleSave, onSelectSpot, userLocation, isHighlighted }) {
   const distanceKm = userLocation ? placesService.calculateDistance(
@@ -11,8 +13,17 @@ export default function SpotCard({ spot, isSaved, onToggleSave, onSelectSpot, us
   ) : null;
 
   return (
-    <div
-      className={`spot-card ${isHighlighted ? 'highlight-pulse' : ''}`}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.985 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className={cn(
+        "spot-card transition-colors duration-200",
+        isHighlighted && "highlight-pulse"
+      )}
       onClick={() => onSelectSpot(spot)}
     >
       <div className="spot-emoji-box">
@@ -22,8 +33,9 @@ export default function SpotCard({ spot, isSaved, onToggleSave, onSelectSpot, us
       <div className="spot-info">
         <div className="spot-header">
           <h3 className="spot-name">{spot.name}</h3>
-          <button
-            className={`save-btn ${isSaved ? 'saved' : ''}`}
+          <motion.button
+            whileTap={{ scale: 0.8 }}
+            className={cn("save-btn", isSaved && "saved")}
             onClick={(e) => {
               e.stopPropagation();
               onToggleSave(spot);
@@ -32,7 +44,7 @@ export default function SpotCard({ spot, isSaved, onToggleSave, onSelectSpot, us
           >
             <Bookmark size={13} fill={isSaved ? '#f87171' : 'none'} />
             <span>{spot.saveCount || 0}</span>
-          </button>
+          </motion.button>
         </div>
 
         <div className="spot-meta">
@@ -62,6 +74,6 @@ export default function SpotCard({ spot, isSaved, onToggleSave, onSelectSpot, us
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
