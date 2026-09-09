@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { CITY_PRESETS } from '../data/seedSpots';
 
-export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity }) {
+export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity, onOpenAuth, user }) {
   const [activeCity, setActiveCity] = useState(selectedCity || 'Downtown Dubai');
 
   const handleCityPick = (cityName) => {
@@ -56,6 +56,16 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity }) 
         >
           <span>Skip to Map</span>
           <ArrowRight size={13} />
+        </button>
+
+        {/* Sign In Button */}
+        <button
+          className="welcome-signin-btn"
+          onClick={onOpenAuth}
+          title="Sign in or create an account"
+        >
+          <ShieldCheck size={13} />
+          <span>{user && !user.isAnonymous ? user.displayName : 'Sign In'}</span>
         </button>
       </header>
 
@@ -211,7 +221,7 @@ export default function WelcomePage({ onEnterApp, selectedCity, onSelectCity }) 
           <div className="welcome-trust-row">
             <div className="trust-item">
               <ShieldCheck size={12} className="text-emerald-400" />
-              <span>No Sign-Up Required</span>
+              <span>{user && !user.isAnonymous ? `Hi, ${user.displayName}` : 'Free Account Available'}</span>
             </div>
             <span className="trust-dot">•</span>
             <div className="trust-item">
