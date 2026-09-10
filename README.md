@@ -1,28 +1,37 @@
-# ⚡ blip — Nearby Now
+# ⚡ blip — Real-Time Nearby Discovery & Friend Outings
 
-> **Offline-first, real-time discovery of nearby food, events, and hidden gems.**  
+> **Offline-first, real-time discovery of nearby food, events, and cool spots — with collaborative planning and buzzing friend alerts.**  
 > Built for the ACM-W Hackathon.
 
-![Blip Architecture](public/favicon.svg)
+---
+
+## 🌟 Features Overview
+
+### 1. ⚡ Instant Local Discovery & Dynamic Places
+- **Radar View**: Live nearby activity radar with category filters (Food, Coffee, Culture, Events, Hidden Gems).
+- **Curated & Live OSM Spots**: High-quality imagery, ratings, tags, distance indicators, and live save counters.
+- **Interactive Map**: Custom Leaflet pins featuring spot photo badges, category-colored glow sonars, and quick detail previews.
+- **Offline-First Resilience**: Full IndexedDB caching and Service Worker asset persistence so discovery works with zero network signal.
+
+### 2. 🔐 Authentication: Google OAuth + Email / Password + Guest Mode
+- **Google Sign-In**: 1-tap sign-in and sign-up with real Google credentials via Firebase Authentication.
+- **Email & Password**: Secure email auth with password strength meter, email verification, and password reset flows.
+- **Guest-First Exploration**: Launch into the app immediately without account friction; link to Google or Email at any time.
+
+### 3. 👥 Friend System & "You Have Been Bliped!" Alerts
+- **Friend Connections**: Add friends by search or 1-tap friend request anyone saving places on the live feed.
+- **Inspect Friends' Saved Spots**: View friends' curated spot lists and bookmark them to your personal favorites.
+- **Collaborative Outing Planning**: Select any spot and invite friends with preset times ("Tonight @ 8:00 PM", "Tomorrow Afternoon", etc.).
+- **Buzzing "YOU HAVE BEEN BLIPED!" Alerts**: Real-time modal with Web Audio synthesizer buzzes, haptic vibration, and radar pulses when friends invite you out.
+
+### 4. 🌐 Real-Time Cross-Device Synchronization
+- **Firestore Real-Time Stream**: Live sync across all deployed devices via Firestore `blip_live_events` collection.
+- **Local Tab Sync**: Same-machine browser tabs communicate via `BroadcastChannel` with deduplication.
+- **Live Feed & Toasts**: Instant activity toasts whenever a friend saves a spot, drops a pin, or sends a Blip invite.
 
 ---
 
-## 🌟 What is Blip?
-
-**Blip** is a mobile-first Progressive Web Application (PWA) designed for instant local exploration. It focuses on a frictionless experience:
-
-1. **Launch directly into the app without a forced sign-in step**  
-   *Resolution*: Users can tap **Launch Radar & Explore** immediately and begin discovering nearby spots without needing to create an account first.
-2. **Stay useful offline, while still feeling live when connected**  
-   *Resolution*: Full offline resilience via Service Worker caching and IndexedDB storage keeps the app functional with no signal, while real-time peer activity and local sync still work when connectivity is available.
-3. **Keep the experience simple and guest-friendly**  
-   *Resolution*: The app supports a lightweight guest session and local saved-state behavior without pushing users into a broken or unnecessary account flow.
-
----
-
-## 🚀 Quick Start (Local Run)
-
-No backend or cloud setup required to test right away. The site runs completely locally!
+## 🚀 Quick Start (Local Development)
 
 ```bash
 # 1. Clone the repository
@@ -32,107 +41,74 @@ cd acmw_hackathon
 # 2. Install dependencies
 npm install
 
-# 3. Start local development server
+# 3. Configure environment variables (optional for local testing)
+# Copy .env.example to .env.local and add your Firebase credentials
+cp .env.example .env.local
+
+# 4. Start the development server
 npm run dev
 ```
 
 Open your browser at:  
 👉 **http://localhost:5173**
 
-### Guest-first experience
-
-The product is intentionally designed so users can begin exploring immediately without being blocked by a sign-in screen.
-
-- Tap **Launch Radar & Explore** to enter the app right away.
-- The app keeps a lightweight guest session and locally stored saved list.
-- This is meant to prioritize product flow over unnecessary account friction.
-
-### Optional account integration
-
-If you choose to add account-backed features later, the app already contains Firebase-based auth service scaffolding that can be wired back in when needed. For now, the current default flow is guest-first and launch-direct.
-
 ---
 
-## 👥 Multi-User Local Testing
+## 🔑 Firebase Configuration
 
-Since the site runs locally, you can test multi-user real-time interaction on a single machine:
+Create a `.env.local` file in the project root with your Firebase web credentials:
 
-1. Open **Tab 1** (`http://localhost:5173`) — this gets a unique anonymous identity (e.g. `NeonNomad_412`).
-2. Open **Tab 2** (`http://localhost:5173`) in an incognito window or separate profile — this gets another unique identity (e.g. `UrbanFox_821`).
-3. **Test Real-Time Saves**: Bookmark any spot in Tab 1. Tab 2 immediately displays a live notification toast: `NeonNomad just saved Arabica Roastery` and updates the live save counter!
-4. **Test "Drop a Blip"**: In Tab 1, click **+ Drop a Blip** and pin a new ramen spot. Tab 2's map and feed will instantly receive and pulse the newly dropped pin via the `BroadcastChannel` real-time sync engine!
-
----
-
-## 📶 Offline-First Verification
-
-You can verify offline capabilities in two ways:
-1. **In-App Network Simulator**: Click the green **Live** pill in the top header. It toggles into **Offline** mode, letting you test how the app gracefully pauses live streams while keeping cached spots and the **My Saved** list 100% interactive.
-2. **Browser DevTools**: Open Chrome/Edge DevTools (`F12`), navigate to **Network**, select **Offline**, and reload the page. The Service Worker will serve the app shell and IndexedDB will serve the cached spots!
-
----
-
-## 🧱 Architecture & Phased Roadmap
-
-This repository was designed in modular phases to support a local-first discovery app:
-
-| Phase | Focus Area | Status | Key Modules |
-|---|---|---|---|
-| **Phase 1** | Project Scaffolding & PWA App Shell | ✅ Done | `index.html`, `vite.config.js`, `public/sw.js`, `src/styles/` |
-| **Phase 2** | Offline Data Store & Local Session State | ✅ Done | `src/services/authService.js`, `src/services/dbService.js` |
-| **Phase 3** | Location Discovery & Leaflet Map | ✅ Done | `src/components/MapView.jsx`, `src/services/placesService.js` |
-| **Phase 4** | Real-Time Sync & Social Feed | ✅ Done | `src/services/syncService.js`, `src/components/LiveFeedView.jsx` |
-| **Phase 5** | Community Spot Dropping & Profile Flow | ✅ Done | `src/components/AddSpotModal.jsx`, `src/components/ProfileModal.jsx` |
-
----
-
-## 📂 Project Structure
-
-```text
-acmw_hackathon/
-├── public/
-│   ├── favicon.svg          # Custom vector neon radar icon
-│   ├── manifest.json        # PWA configuration
-│   └── sw.js                # Service worker offline asset caching
-├── src/
-│   ├── components/
-│   │   ├── AddSpotModal.jsx      # "Drop a Blip" community pin creator
-│   │   ├── BottomNav.jsx         # Mobile-first floating navigation
-│   │   ├── Header.jsx            # Brand header with network simulator
-│   │   ├── LiveFeedView.jsx      # Real-time peer activity stream
-│   │   ├── LiveToast.jsx         # Live peer alert notifications
-│   │   ├── MapView.jsx           # Leaflet interactive map with custom pins
-│   │   ├── ProfileModal.jsx      # Guest session and local profile state
-│   │   ├── SavedListView.jsx     # 100% offline personal bookmarks
-│   │   ├── SpotCard.jsx          # Discovery card with instant save action
-│   │   └── SpotDetailModal.jsx   # Spot details, directions, & sharing
-│   ├── data/
-│   │   └── seedSpots.js          # Seed dataset across 5 categories & cities
-│   ├── services/
-│   │   ├── authService.js        # Guest session + optional auth scaffolding
-│   │   ├── dbService.js          # IndexedDB / LocalStorage persistence
-│   │   ├── placesService.js      # Geolocation & OpenStreetMap queries
-│   │   └── syncService.js        # BroadcastChannel multi-client sync broker
-│   ├── styles/
-│   │   └── index.css             # Polished dark theme mobile UI styles
-│   ├── App.jsx                   # Central orchestrator & reactive state
-│   └── main.jsx                  # React DOM root mounting
-├── index.html
-├── package.json
-└── vite.config.js
+```env
+VITE_FIREBASE_API_KEY=AIzaSyC2u0cbq2C7xT3fG08fUTXAuyCFVlR0sjo
+VITE_FIREBASE_AUTH_DOMAIN=acmw-hackathon.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=acmw-hackathon
+VITE_FIREBASE_STORAGE_BUCKET=acmw-hackathon.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=831480521796
+VITE_FIREBASE_APP_ID=1:831480521796:web:50f36704ad5c4577b6c811
+VITE_FIREBASE_MEASUREMENT_ID=G-4FV1XZFCF9
 ```
+
+> [!IMPORTANT]
+> **Firebase Console Checklist**:
+> 1. **Authentication → Sign-in method**: Ensure **Google** and **Email/Password** are **Enabled**.
+> 2. **Authentication → Settings → Authorized domains**: Add your Vercel deployment domain (e.g. `*.vercel.app` or custom domain).
+> 3. **Firestore Database**: Create Firestore database in test/production mode to allow `blip_live_events` reads/writes.
+
+---
+
+## 📦 Deployment to Vercel
+
+The project is configured for single-command zero-config deployment using Vite and [`vercel.json`](file:///c:/Users/vijay/acmw_hackathon/vercel.json):
+
+```bash
+# Build for production
+npm run build
+
+# Deploy via Vercel CLI
+npx vercel --prod
+```
+
+Or connect the GitHub repository directly at [vercel.com/new](https://vercel.com/new) for automated CI/CD on every `git push origin main`.
+
+---
+
+## 👥 Multi-User Real-Time Testing
+
+1. **Tab 1**: Open `http://localhost:5173` and sign in or continue as guest.
+2. **Tab 2**: Open an incognito tab or second browser.
+3. **Feed Interactions**: Save any place in Tab 1 — Tab 2 receives a real-time live toast and updates the save counter.
+4. **Blip an Invite**: In Tab 1, open any spot, click **⚡ Plan with Friends**, select a friend and time. Tab 2 immediately receives the buzzing **YOU HAVE BEEN BLIPED!** alert modal!
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **UI Framework**: React 18 with modern React Hooks (`useState`, `useEffect`, `useMemo`, `useRef`)
-- **Bundler & Dev Server**: Vite 5
-- **Mapping & Geodata**: Leaflet & OpenStreetMap CartoDB Dark Matter tiles
-- **Local Storage Engine**: IndexedDB (via `idb`) + LocalStorage resilient fallback
-- **Offline PWA**: Cache Storage API & Service Worker (`sw.js`)
-- **Real-Time Layer**: Cross-tab `BroadcastChannel` real-time sync with peer event emitters
-- **Icons**: Lucide React
+- **Frontend**: React 18, Vite 5, Tailwind CSS, Lucide React, Framer Motion
+- **Maps**: Leaflet, OpenStreetMap CartoDB Dark Matter tiles
+- **Persistence**: IndexedDB (`idb`), LocalStorage resilient fallback, Service Worker (`sw.js`)
+- **Backend & Auth**: Firebase Auth (Google OAuth, Email/Password), Cloud Firestore
+- **Real-Time Engine**: Cloud Firestore `onSnapshot` + browser `BroadcastChannel`
+- **Audio / Haptics**: Web Audio API oscillator synthesis + `navigator.vibrate`
 
 ---
 

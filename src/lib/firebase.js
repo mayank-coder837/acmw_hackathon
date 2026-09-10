@@ -19,6 +19,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'acmw-hackathon.firebasestorage.app',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '831480521796',
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:831480521796:web:50f36704ad5c4577b6c811',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-4FV1XZFCF9',
 };
 
 const hasPlaceholderValues = Object.values(firebaseConfig).some((value) => {
