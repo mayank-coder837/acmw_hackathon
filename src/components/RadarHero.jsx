@@ -25,7 +25,7 @@ export default function RadarHero({ activeSpotsCount, cityName, isOnline, onView
       <div className="radar-hero-bottom">
         <div>
           <div className="radar-hero-title">
-            <span>Nearby Now</span>
+            <span>Blip Now</span>
             <span className="radar-live-pill">Live Radar</span>
           </div>
           <div className="radar-hero-subtitle">

@@ -167,22 +167,39 @@ export default function MapView({ spots, userLocation, selectedSpot, onSelectSpo
       const isHighlighted = highlightedSpotId === spot.id;
       const isSelected = selectedSpot?.id === spot.id;
       const categoryStyle = CATEGORY_COLORS[spot.category] || CATEGORY_COLORS.default;
+      const photoUrl = spot.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80';
 
       const spotIcon = L.divIcon({
         className: 'modern-pin-container',
         html: `
           <div 
-            class="modern-map-pin ${isSelected ? 'is-selected' : ''}" 
+            class="modern-map-pin ${isSelected ? 'is-selected' : ''} ${isHighlighted ? 'is-highlighted' : ''}" 
             style="--pin-color: ${categoryStyle.color}; --pin-glow: ${categoryStyle.glow};"
+            title="${spot.name} (${spot.category})"
           >
             ${isSelected || isHighlighted ? '<div class="modern-pin-pulse"></div>' : ''}
             <div class="modern-pin-badge">
-              <span>${spot.emoji || '📍'}</span>
+              <div class="modern-pin-img-wrapper">
+                <img 
+                  src="${photoUrl}" 
+                  alt="${spot.name}" 
+                  class="blip-face-photo"
+                  loading="lazy"
+                  onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';"
+                />
+                <div class="blip-face-fallback" style="display: none;">
+                  <span>${spot.emoji || '📍'}</span>
+                </div>
+              </div>
+              <div class="blip-face-emoji-badge">
+                <span>${spot.emoji || '📍'}</span>
+              </div>
             </div>
+            <div class="modern-pin-needle"></div>
           </div>
         `,
-        iconSize: [42, 48],
-        iconAnchor: [21, 46]
+        iconSize: [46, 52],
+        iconAnchor: [23, 50]
       });
 
       const marker = L.marker([actualLat, actualLng], {

@@ -64,6 +64,30 @@ export default function App() {
   const [userLocation, setUserLocation] = useState({ lat: 25.1972, lng: 55.2744 });
   const [selectedCityPreset, setSelectedCityPreset] = useState('Downtown Dubai');
 
+  // Synchronize nearby live Map API places (food places, coffee shops, events, culture, fun)
+  const syncNearbyPlaces = async (lat, lng) => {
+    if (!navigator.onLine) return;
+    try {
+      const liveOsm = await placesService.fetchLiveOSMSpots(lat, lng, 3500);
+      if (liveOsm.length > 0) {
+        setSpots((prev) => {
+          const existingIds = new Set(prev.map((s) => s.id));
+          const existingNames = new Set(prev.map((s) => s.name?.toLowerCase().trim()));
+          const newSpots = liveOsm.filter(
+            (s) => !existingIds.has(s.id) && !existingNames.has(s.name?.toLowerCase().trim())
+          );
+          if (newSpots.length > 0) {
+            newSpots.forEach((s) => dbService.saveSpot(s));
+            return [...newSpots, ...prev];
+          }
+          return prev;
+        });
+      }
+    } catch (e) {
+      console.warn('Live map sync fallback:', e);
+    }
+  };
+
   // Subscribe to Firebase auth state changes
   useEffect(() => {
     authService.checkRedirectResult().then((redirectUser) => {
@@ -97,25 +121,9 @@ export default function App() {
       const savedIds = await dbService.getUserSavedSpotIds(currentUser.uid);
       setSavedSpotIds(savedIds);
 
-      // Attempt live OpenStreetMap hydration if online
+      // Initial nearby Map API hydration
       if (navigator.onLine) {
-        try {
-          const liveOsm = await placesService.fetchLiveOSMSpots(25.1972, 55.2744, 2500);
-          if (liveOsm.length > 0) {
-            // Merge with existing avoiding duplicates
-            const existingIds = new Set(loadedSpots.map((s) => s.id));
-            const newSpots = liveOsm.filter((s) => !existingIds.has(s.id));
-            if (newSpots.length > 0) {
-              const combined = [...loadedSpots, ...newSpots];
-              setSpots(combined);
-              for (const s of newSpots) {
-                await dbService.saveSpot(s);
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('OSM fetch fallback:', e);
-        }
+        syncNearbyPlaces(25.1972, 55.2744);
       }
     }
 
@@ -124,6 +132,9 @@ export default function App() {
     // Fetch browser location
     placesService.getCurrentPosition().then((pos) => {
       setUserLocation({ lat: pos.lat, lng: pos.lng });
+      if (navigator.onLine && !pos.isFallback) {
+        syncNearbyPlaces(pos.lat, pos.lng);
+      }
     });
 
     // Window network listeners
@@ -463,6 +474,7 @@ export default function App() {
     const preset = CITY_PRESETS.find((p) => p.name === cityName);
     if (preset) {
       setUserLocation({ lat: preset.lat, lng: preset.lng });
+      syncNearbyPlaces(preset.lat, preset.lng);
     }
   };
 

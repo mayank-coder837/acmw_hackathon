@@ -50,7 +50,7 @@ export default function SpotDetailModal({
 
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '2rem' }}>{spot.emoji || '📍'}</span>
+            <span style={{ fontSize: '1.8rem' }}>{spot.emoji || '📍'}</span>
             <div>
               <span className="spot-badge" style={{ textTransform: 'capitalize' }}>
                 {spot.category}
@@ -61,6 +61,18 @@ export default function SpotDetailModal({
             <X size={16} />
           </button>
         </div>
+
+        {/* Location Photo Hero Banner */}
+        {spot.image && (
+          <div className="modal-photo-hero">
+            <img src={spot.image} alt={spot.name} className="modal-photo-img" />
+            <div className="modal-photo-gradient" />
+            <div className="modal-photo-badge">
+              <span>{spot.emoji || '📍'}</span>
+              <span style={{ textTransform: 'capitalize' }}>{spot.category}</span>
+            </div>
+          </div>
+        )}
 
         <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '6px' }}>
           {spot.name}

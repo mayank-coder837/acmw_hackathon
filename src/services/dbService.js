@@ -1,15 +1,16 @@
 import { openDB } from 'idb';
-import { SEED_SPOTS } from '../data/seedSpots';
+import { SEED_SPOTS, CATEGORY_FALLBACK_IMAGES } from '../data/seedSpots';
+import { placesService } from './placesService';
 
 const DB_NAME = 'blip_local_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incremented for rich photography and expanded seed migration
 
 let dbPromise = null;
 
 async function getDB() {
   if (!dbPromise) {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
+      upgrade(db, oldVersion, newVersion, transaction) {
         // Spots store
         if (!db.objectStoreNames.contains('spots')) {
           const spotStore = db.createObjectStore('spots', { keyPath: 'id' });
@@ -32,24 +33,69 @@ async function getDB() {
 }
 
 export const dbService = {
-  // Initialize local DB and ensure seed spots are cached
+  // Initialize local DB, backfill images on existing spots, and merge expanded seed blips
   async init() {
     try {
       const db = await getDB();
       if (db) {
-        const count = await db.count('spots');
-        if (count === 0) {
-          const tx = db.transaction('spots', 'readwrite');
-          for (const spot of SEED_SPOTS) {
+        const existingSpots = await db.getAll('spots');
+        const existingMap = new Map(existingSpots.map((s) => [s.id, s]));
+
+        const tx = db.transaction('spots', 'readwrite');
+        
+        // 1. Backfill images on any existing spot lacking an image
+        for (const spot of existingSpots) {
+          if (!spot.image) {
+            const seedMatch = SEED_SPOTS.find((s) => s.id === spot.id);
+            spot.image = seedMatch?.image || placesService.getPhotoForPlace(spot.category, spot.tags || [], spot.name);
             await tx.store.put(spot);
           }
-          await tx.done;
         }
+
+        // 2. Add all new seed spots if not already present
+        for (const seedSpot of SEED_SPOTS) {
+          if (!existingMap.has(seedSpot.id)) {
+            await tx.store.put(seedSpot);
+          } else {
+            // Ensure existing seed spot has updated high-res photo
+            const current = existingMap.get(seedSpot.id);
+            if (!current.image && seedSpot.image) {
+              current.image = seedSpot.image;
+              await tx.store.put(current);
+            }
+          }
+        }
+        await tx.done;
+
+        // Sync to localStorage
+        const all = await db.getAll('spots');
+        localStorage.setItem('blip_spots', JSON.stringify(all));
       } else {
         // LocalStorage fallback
-        if (!localStorage.getItem('blip_spots')) {
-          localStorage.setItem('blip_spots', JSON.stringify(SEED_SPOTS));
+        let spots = [];
+        const raw = localStorage.getItem('blip_spots');
+        if (raw) {
+          try {
+            spots = JSON.parse(raw);
+          } catch {
+            spots = [];
+          }
         }
+
+        const map = new Map(spots.map((s) => [s.id, s]));
+        for (const spot of spots) {
+          if (!spot.image) {
+            const seedMatch = SEED_SPOTS.find((s) => s.id === spot.id);
+            spot.image = seedMatch?.image || placesService.getPhotoForPlace(spot.category, spot.tags || [], spot.name);
+          }
+        }
+
+        for (const seedSpot of SEED_SPOTS) {
+          if (!map.has(seedSpot.id)) {
+            spots.push(seedSpot);
+          }
+        }
+        localStorage.setItem('blip_spots', JSON.stringify(spots));
       }
     } catch (e) {
       console.error('dbService init error:', e);
@@ -62,10 +108,33 @@ export const dbService = {
       const db = await getDB();
       if (db) {
         const spots = await db.getAll('spots');
-        if (spots && spots.length > 0) return spots;
+        if (spots && spots.length > 0) {
+          // Verify images exist on all spots
+          return spots.map((spot) => {
+            if (!spot.image) {
+              return {
+                ...spot,
+                image: placesService.getPhotoForPlace(spot.category, spot.tags || [], spot.name)
+              };
+            }
+            return spot;
+          });
+        }
       }
       const raw = localStorage.getItem('blip_spots');
-      return raw ? JSON.parse(raw) : SEED_SPOTS;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return parsed.map((spot) => {
+          if (!spot.image) {
+            return {
+              ...spot,
+              image: placesService.getPhotoForPlace(spot.category, spot.tags || [], spot.name)
+            };
+          }
+          return spot;
+        });
+      }
+      return SEED_SPOTS;
     } catch (e) {
       console.warn('Falling back to seed spots:', e);
       return SEED_SPOTS;
@@ -75,6 +144,11 @@ export const dbService = {
   // Save or update a spot locally
   async saveSpot(spot) {
     try {
+      // Ensure spot has a photo
+      if (!spot.image) {
+        spot.image = placesService.getPhotoForPlace(spot.category, spot.tags || [], spot.name);
+      }
+
       const db = await getDB();
       if (db) {
         await db.put('spots', spot);

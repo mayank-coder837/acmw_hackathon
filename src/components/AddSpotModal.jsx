@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, PlusCircle, MapPin, Sparkles } from 'lucide-react';
 import { CATEGORIES } from '../data/seedSpots';
 
+import { placesService } from '../services/placesService';
+
 export default function AddSpotModal({ userLocation, user, onAddSpot, onClose }) {
   // Lock background scroll when modal is open
   useEffect(() => {
@@ -18,6 +20,7 @@ export default function AddSpotModal({ userLocation, user, onAddSpot, onClose })
   const [address, setAddress] = useState('');
   const [emoji, setEmoji] = useState('📍');
   const [customTag, setCustomTag] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   // Default coordinates to current user location with tiny jitter or city center
   const defaultLat = userLocation ? userLocation.lat + (Math.random() - 0.5) * 0.006 : 25.1972;
@@ -43,11 +46,15 @@ export default function AddSpotModal({ userLocation, user, onAddSpot, onClose })
     e.preventDefault();
     if (!name.trim()) return;
 
+    const tags = [category, customTag.trim()].filter(Boolean);
+    const photo = imageUrl.trim() || placesService.getPhotoForPlace(category, tags, name.trim());
+
     const newSpot = {
       id: `spot-${Date.now()}`,
       name: name.trim(),
       category,
       emoji: emoji || '📍',
+      image: photo,
       description: description.trim() || 'A new cool spot dropped by the community.',
       lat: parseFloat(lat),
       lng: parseFloat(lng),
@@ -55,7 +62,7 @@ export default function AddSpotModal({ userLocation, user, onAddSpot, onClose })
       addedBy: user?.displayName || 'Anonymous Explorer',
       createdAt: Date.now(),
       saveCount: 1, // creator inherently saves
-      tags: [category, customTag.trim()].filter(Boolean),
+      tags,
       rating: 5.0
     };
 
@@ -138,6 +145,17 @@ export default function AddSpotModal({ userLocation, user, onAddSpot, onClose })
                 className="form-input"
               />
             </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Photo URL (Optional)</label>
+            <input
+              type="url"
+              placeholder="https://images.unsplash.com/... (auto-assigned if empty)"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className="form-input"
+            />
           </div>
 
           <div className="form-group">

@@ -40,8 +40,26 @@ export default function SpotCard({ spot, isSaved, onToggleSave, onSelectSpot, us
         />
       )}
 
-      <div className="spot-emoji-box relative z-10">
-        {spot.emoji || '📍'}
+      {/* Blip Face: Photo of the location with category emoji pill */}
+      <div className="spot-photo-face relative z-10 shrink-0">
+        <img
+          src={spot.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80'}
+          alt={spot.name}
+          className="spot-photo-img"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            if (e.currentTarget.nextElementSibling) {
+              e.currentTarget.nextElementSibling.style.display = 'flex';
+            }
+          }}
+        />
+        <div className="spot-photo-fallback" style={{ display: 'none' }}>
+          {spot.emoji || '📍'}
+        </div>
+        <div className="spot-photo-emoji-pill">
+          {spot.emoji || '📍'}
+        </div>
       </div>
 
       <div className="spot-info relative z-10">
