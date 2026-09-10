@@ -440,7 +440,16 @@ function mapFirebaseError(code) {
       return 'Another sign-in window is already active.';
     case 'auth/account-exists-with-different-credential':
       return 'An account already exists with this email under a different sign-in method.';
+    case 'auth/operation-not-allowed':
+      return 'Google sign-in is not enabled in your Firebase Console. Go to Firebase Console → Authentication → Sign-in method and enable "Google".';
+    case 'auth/invalid-api-key':
+    case 'auth/api-key-not-valid.':
+      return 'Invalid Firebase API Key. Please verify VITE_FIREBASE_API_KEY in your settings.';
+    case 'auth/configuration-not-found':
+      return 'Firebase Authentication is not set up. Please enable Authentication in your Firebase Console.';
+    case 'auth/internal-error':
+      return 'Firebase internal error. Please check your network and try again.';
     default:
-      return 'Something went wrong. Please try again.';
+      return code ? `Authentication error (${code}). Please try again.` : 'Something went wrong. Please try again.';
   }
 }
