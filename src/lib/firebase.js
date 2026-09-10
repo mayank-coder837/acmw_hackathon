@@ -13,7 +13,7 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyC2u0cbq2C7xT3fG08fUTXAUyCFVLR0sjo',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyC2u0cbq2C7xT3fG08fUTXAuyCFVlR0sjo',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'acmw-hackathon.firebaseapp.com',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'acmw-hackathon',
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'acmw-hackathon.firebasestorage.app',
