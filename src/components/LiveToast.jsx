@@ -1,8 +1,24 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Bookmark, X } from 'lucide-react';
+import { Sparkles, Bookmark, X, UserPlus, Users, Zap } from 'lucide-react';
 
 export default function LiveToast({ toasts, onDismissToast, onSelectSpot }) {
+  const getIcon = (type) => {
+    switch (type) {
+      case 'NEW_SPOT':
+        return <Sparkles size={16} />;
+      case 'FRIEND_REQ_TOAST':
+        return <UserPlus size={16} color="#38bdf8" />;
+      case 'FRIEND_ACCEPTED_TOAST':
+        return <Users size={16} color="#34d399" />;
+      case 'PLAN_RESP_TOAST':
+      case 'BLIP_INVITE_TOAST':
+        return <Zap size={16} color="#f59e0b" fill="#f59e0b" />;
+      default:
+        return <Bookmark size={16} />;
+    }
+  };
+
   return (
     <div className="live-toast-container">
       <AnimatePresence>
@@ -20,17 +36,25 @@ export default function LiveToast({ toasts, onDismissToast, onSelectSpot }) {
             }}
           >
             <div className="live-toast-icon">
-              {toast.type === 'NEW_SPOT' ? <Sparkles size={16} /> : <Bookmark size={16} />}
+              {getIcon(toast.type)}
             </div>
 
             <div className="live-toast-text">
-              <div>
-                <strong>{toast.user?.displayName || 'Nearby Explorer'}</strong>{' '}
-                {toast.type === 'NEW_SPOT' ? 'dropped a new spot:' : 'just saved:'}
-              </div>
-              <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                {toast.spot?.emoji || '📍'} {toast.spot?.name}
-              </div>
+              {toast.message ? (
+                <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.82rem' }}>
+                  {toast.message}
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <strong>{toast.user?.displayName || 'Nearby Explorer'}</strong>{' '}
+                    {toast.type === 'NEW_SPOT' ? 'dropped a new spot:' : 'just saved:'}
+                  </div>
+                  <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                    {toast.spot?.emoji || '📍'} {toast.spot?.name}
+                  </div>
+                </>
+              )}
             </div>
 
             <button

@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Radio, Bookmark, User } from 'lucide-react';
+import { Compass, Radio, Users, Bookmark, User } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export default function BottomNav({ activeTab, onTabChange, savedCount, liveCount }) {
+export default function BottomNav({ activeTab, onTabChange, savedCount, liveCount, friendsBadge }) {
   const tabs = [
     { id: 'discover', label: 'Discover', icon: Compass, badge: null },
     { id: 'feed', label: 'Live Feed', icon: Radio, badge: liveCount > 0 ? (liveCount > 99 ? '99+' : liveCount) : null },
+    { id: 'friends', label: 'Friends', icon: Users, badge: friendsBadge > 0 ? friendsBadge : null },
     { id: 'saved', label: 'My Saved', icon: Bookmark, badge: savedCount > 0 ? savedCount : null },
     { id: 'profile', label: 'Profile', icon: User, badge: null }
   ];

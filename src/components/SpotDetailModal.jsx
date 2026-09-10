@@ -1,8 +1,15 @@
 import React, { useEffect } from 'react';
-import { X, Bookmark, Navigation, Share2, Star, Clock, User, Tag } from 'lucide-react';
+import { X, Bookmark, Navigation, Share2, Star, Clock, User, Tag, Zap } from 'lucide-react';
 import { placesService } from '../services/placesService';
 
-export default function SpotDetailModal({ spot, isSaved, onToggleSave, onClose, userLocation }) {
+export default function SpotDetailModal({
+  spot,
+  isSaved,
+  onToggleSave,
+  onClose,
+  userLocation,
+  onPlanSpot
+}) {
   // Lock background scroll when modal is open
   useEffect(() => {
     const mainContent = document.querySelector('.main-content');
@@ -111,6 +118,17 @@ export default function SpotDetailModal({ spot, isSaved, onToggleSave, onClose, 
           >
             <Bookmark size={18} fill={isSaved ? '#ffffff' : 'none'} />
             {isSaved ? 'Remove from Saved' : 'Save to My Spots'}
+          </button>
+
+          <button
+            type="button"
+            className="btn-primary blip-plan-btn"
+            onClick={() => {
+              if (onPlanSpot) onPlanSpot(spot);
+            }}
+          >
+            <Zap size={18} fill="#ffffff" />
+            <span>⚡ Plan with Friends (Blip)</span>
           </button>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

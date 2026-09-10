@@ -2335,3 +2335,828 @@ body::-webkit-scrollbar {
   position: relative;
   z-index: 1;
 }
+
+/* ==========================================================================
+   FRIEND SYSTEM & COLLABORATIVE PLACE PLANNING ("YOU HAVE BEEN BLIPED")
+   ========================================================================== */
+
+/* 1. Friends Hub & Views */
+.friends-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.friend-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.friend-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.friend-search-input-wrap:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.2);
+}
+
+.friend-search-input-wrap input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.friend-search-input-wrap input::placeholder {
+  color: var(--text-muted);
+}
+
+.btn-add-friend-submit {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border: none;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-add-friend-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35);
+}
+
+.friend-add-feedback {
+  font-size: 0.76rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.friend-add-feedback.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.friend-add-feedback.error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Segment Bar */
+.friends-segment-bar {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+
+.friends-segment-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.friends-segment-btn.active {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.18);
+}
+
+.friends-badge-alert {
+  background: var(--accent-danger);
+  color: #ffffff;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  font-weight: 700;
+}
+
+/* Friend Row Card */
+.friend-row-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.friend-row-card:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.friend-avatar-md {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.friend-avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.76rem;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.friend-avatar-lg {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.35);
+  flex-shrink: 0;
+}
+
+.friend-card-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.friend-card-handle {
+  font-size: 0.74rem;
+  color: #38bdf8;
+}
+
+.friend-card-bio {
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  margin: 3px 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friend-saved-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(236, 72, 153, 0.12);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  color: #f472b6;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 9999px;
+}
+
+/* Friend Actions */
+.btn-friend-plan-action {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(245, 158, 11, 0.2));
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: #38bdf8;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-friend-plan-action:hover {
+  background: linear-gradient(135deg, #06b6d4, #f59e0b);
+  color: #ffffff;
+}
+
+.btn-friend-spots-action {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-friend-spots-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+/* Request Row Card */
+.request-row-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-req-accept {
+  background: #10b981;
+  border: none;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.btn-req-decline {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-req-cancel {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+/* Live Feed Add Friend Button */
+.btn-feed-add-friend {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: #38bdf8;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-feed-add-friend:hover {
+  background: #06b6d4;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+}
+
+.feed-pending-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+  font-size: 0.68rem;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.feed-friend-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  font-size: 0.68rem;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+/* Planned Hangout Cards */
+.plan-card-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.plan-card-item:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.plan-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plan-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.plan-status-pill.accepted {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.plan-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.plan-note-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.plan-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-light);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.plan-avatar-overlap {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-surface);
+  margin-left: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Friend Details Modal & Stats */
+.friend-stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.friend-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.stat-lbl {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.friend-stat-divider {
+  width: 1px;
+  height: 26px;
+  background: var(--border-light);
+}
+
+.btn-plan-friend-quick {
+  background: linear-gradient(135deg, #06b6d4, #f59e0b);
+  border: none;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-plan-friend-quick:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+}
+
+.friend-spots-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 44vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.btn-text-danger {
+  background: transparent;
+  border: none;
+  color: #f87171;
+  font-size: 0.76rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* Plan Modal Styling */
+.plan-spot-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.plan-friends-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.plan-friend-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.plan-friend-chip.selected {
+  border-color: #38bdf8;
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.friend-chip-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.friend-chip-handle {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.friend-check-bubble {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.friend-check-bubble.checked {
+  background: #06b6d4;
+  border-color: #06b6d4;
+}
+
+.empty-friends-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--border-light);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.blip-send-btn {
+  background: linear-gradient(135deg, #06b6d4, #f59e0b) !important;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4) !important;
+}
+
+.blip-plan-btn {
+  background: linear-gradient(135deg, #06b6d4, #8b5cf6) !important;
+  box-shadow: 0 4px 18px rgba(6, 182, 212, 0.3) !important;
+}
+
+/* ==========================================================================
+   "YOU HAVE BEEN BLIPED!" SENSORY BUZZING MODAL
+   ========================================================================== */
+
+@keyframes blipBuzzShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-4px, -3px) rotate(-1deg); }
+  20% { transform: translate(4px, 3px) rotate(1deg); }
+  30% { transform: translate(-4px, 2px) rotate(0deg); }
+  40% { transform: translate(4px, -2px) rotate(1deg); }
+  50% { transform: translate(-3px, 3px) rotate(-1deg); }
+  60% { transform: translate(3px, 2px) rotate(0deg); }
+  70% { transform: translate(-2px, -2px) rotate(1deg); }
+  80% { transform: translate(3px, -3px) rotate(0deg); }
+  90% { transform: translate(-2px, 3px) rotate(-1deg); }
+}
+
+@keyframes blipPulseGlow {
+  0%   { box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), 0 0 50px rgba(245, 158, 11, 0.2); }
+  50%  { box-shadow: 0 0 45px rgba(6, 182, 212, 0.8), 0 0 75px rgba(245, 158, 11, 0.5); }
+  100% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), 0 0 50px rgba(245, 158, 11, 0.2); }
+}
+
+@keyframes blipWaveRing {
+  0%   { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.blip-buzz-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+}
+
+.blip-buzz-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #090e1a;
+  border: 2px solid #06b6d4;
+  border-radius: 24px;
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+  animation: blipBuzzShake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) 2, blipPulseGlow 2.5s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Radar Pulse Emitter */
+.blip-radar-emitter {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.blip-pulse-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #06b6d4;
+}
+
+.blip-pulse-wave.wave-1 {
+  animation: blipWaveRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.blip-pulse-wave.wave-2 {
+  animation: blipWaveRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) 0.6s infinite;
+}
+
+.blip-icon-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #06b6d4, #f59e0b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+  z-index: 2;
+}
+
+.blip-zap-icon {
+  animation: pulse 1s infinite alternate;
+}
+
+/* Buzzing Title */
+.blip-buzz-title-wrap {
+  margin-bottom: 16px;
+}
+
+.blip-buzz-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  margin-bottom: 6px;
+}
+
+.blip-buzz-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: pulse 1.2s infinite;
+}
+
+.blip-buzz-heading {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px 0;
+  text-shadow: 0 0 16px rgba(6, 182, 212, 0.7);
+}
+
+.blip-buzz-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Spot Preview Box inside Buzz modal */
+.blip-spot-preview-box {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.blip-spot-preview-box:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.blip-spot-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.blip-spot-emoji {
+  font-size: 1.8rem;
+}
+
+.blip-tap-hint {
+  font-size: 0.68rem;
+  color: #38bdf8;
+  margin-left: auto;
+}
+
+.blip-spot-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 2px 0 0 0;
+}
+
+.blip-spot-address {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.blip-note-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: rgba(6, 182, 212, 0.08);
+  border-left: 3px solid #06b6d4;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.blip-actions-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.blip-accept-btn {
+  background: linear-gradient(135deg, #06b6d4, #10b981) !important;
+  font-size: 0.92rem;
+  font-weight: 800;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35) !important;
+}
+
