@@ -2336,6 +2336,64 @@ body::-webkit-scrollbar {
   z-index: 1;
 }
 
+/* Google Sign-In button */
+.btn-google-auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.15s, box-shadow 0.18s;
+  letter-spacing: 0.1px;
+  position: relative;
+  z-index: 1;
+}
+.btn-google-auth:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+.btn-google-auth:active:not(:disabled) { transform: translateY(0); }
+.btn-google-auth:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.google-svg-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Auth divider ("or continue with email") */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  margin: 2px 0;
+}
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.auth-divider-text {
+  font-size: 0.7rem;
+  color: rgba(148, 163, 184, 0.55);
+  white-space: nowrap;
+  padding: 0 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
 /* ==========================================================================
    FRIEND SYSTEM & COLLABORATIVE PLACE PLANNING ("YOU HAVE BEEN BLIPED")
    ========================================================================== */

@@ -1,6 +1,9 @@
 // Real-Time Multi-User Synchronization Service
-// Uses BroadcastChannel for instant local inter-tab/browser multi-user sync
-// Provides live feed events for saves, new spots, and peer radar pings.
+// Combines local BroadcastChannel with Firebase Firestore for real-time deployed sync across devices.
+// Provides live feed events for saves, new spots, peer radar pings, and buzzing Blip invites.
+
+import { db } from '../lib/firebase';
+import { collection, addDoc, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 
 const CHANNEL_NAME = 'blip_live_sync';
 
@@ -9,7 +12,13 @@ class SyncService {
     this.channel = null;
     this.listeners = new Set();
     this.ambientTimer = null;
+    this.firestoreUnsubscribe = null;
+    this.clientId = typeof window !== 'undefined'
+      ? `client_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`
+      : 'server';
+
     this.initChannel();
+    this.initFirestoreSync();
   }
 
   initChannel() {
@@ -17,11 +26,40 @@ class SyncService {
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
         this.channel = new BroadcastChannel(CHANNEL_NAME);
         this.channel.onmessage = (event) => {
-          this.notifyListeners(event.data);
+          if (event.data && event.data.clientId !== this.clientId) {
+            this.notifyListeners(event.data);
+          }
         };
       }
     } catch (e) {
       console.warn('BroadcastChannel not supported in this environment:', e);
+    }
+  }
+
+  // Real-time multi-device cloud listener when deployed
+  initFirestoreSync() {
+    if (!db || typeof window === 'undefined') return;
+
+    try {
+      const eventsRef = collection(db, 'blip_live_events');
+      const q = query(eventsRef, orderBy('timestamp', 'desc'), limit(30));
+
+      this.firestoreUnsubscribe = onSnapshot(q, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const data = change.doc.data();
+            // Filter out events emitted by this exact client tab
+            if (data && data.clientId !== this.clientId) {
+              this.notifyListeners(data);
+            }
+          }
+        });
+      }, (err) => {
+        // Firestore rules might not be set up, so log informatively without breaking
+        console.warn('Firestore real-time sync notice:', err.message);
+      });
+    } catch (e) {
+      console.warn('Could not initialize Firestore sync:', e);
     }
   }
 
@@ -43,6 +81,37 @@ class SyncService {
     });
   }
 
+  // Universal publisher: broadcasts to local tabs + deployed peers via Firestore
+  publish(payload) {
+    if (!payload.clientId) {
+      payload.clientId = this.clientId;
+    }
+
+    // 1. Post to local browser tabs
+    if (this.channel) {
+      try {
+        this.channel.postMessage(payload);
+      } catch (e) {
+        console.warn('BroadcastChannel publish error:', e);
+      }
+    }
+
+    // 2. Notify current tab listeners
+    this.notifyListeners(payload);
+
+    // 3. Post to Firestore for real-time sync across different deployed devices/phones
+    if (db) {
+      try {
+        const cleanPayload = JSON.parse(JSON.stringify(payload));
+        addDoc(collection(db, 'blip_live_events'), cleanPayload).catch((err) => {
+          console.warn('Firestore broadcast note:', err?.message || err);
+        });
+      } catch (err) {
+        console.warn('Firestore publish error:', err);
+      }
+    }
+  }
+
   // Broadcast a new spot added by the local user
   broadcastNewSpot(spot, user) {
     const payload = {
@@ -58,12 +127,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    // Notify other tabs
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    // Also notify current tab listeners
-    this.notifyListeners(payload);
+    this.publish(payload);
   }
 
   // Broadcast that a spot was saved
@@ -90,10 +154,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    this.notifyListeners(payload);
+    this.publish(payload);
   }
 
   // Broadcast a friend request
@@ -105,10 +166,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    this.notifyListeners(payload);
+    this.publish(payload);
 
     // If sent to a simulated peer (starts with 'peer_'), simulate accept after 2 seconds
     if (request.toUser?.uid?.startsWith('peer_')) {
@@ -121,8 +179,7 @@ class SyncService {
           toUser: request.fromUser,
           timestamp: Date.now()
         };
-        if (this.channel) this.channel.postMessage(acceptPayload);
-        this.notifyListeners(acceptPayload);
+        this.publish(acceptPayload);
       }, 2000);
     }
   }
@@ -138,10 +195,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    this.notifyListeners(payload);
+    this.publish(payload);
   }
 
   // Broadcast collaborative place plan / Blip Invite ("You Have Been Bliped!")
@@ -153,10 +207,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    this.notifyListeners(payload);
+    this.publish(payload);
 
     // If user bliped simulated peers, have one of them accept with an excited message
     const hasPeer = plan.invitedFriends?.some((f) => f.uid?.startsWith('peer_'));
@@ -172,8 +223,7 @@ class SyncService {
           message: 'Count me in! See you there! ⚡',
           timestamp: Date.now()
         };
-        if (this.channel) this.channel.postMessage(responsePayload);
-        this.notifyListeners(responsePayload);
+        this.publish(responsePayload);
       }, 3500);
     }
   }
@@ -189,10 +239,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    this.notifyListeners(payload);
+    this.publish(payload);
   }
 
   // Broadcast updated saved spots to friends
@@ -208,10 +255,7 @@ class SyncService {
       timestamp: Date.now()
     };
 
-    if (this.channel) {
-      this.channel.postMessage(payload);
-    }
-    this.notifyListeners(payload);
+    this.publish(payload);
   }
 
   // Start ambient peer activity simulator (online only)

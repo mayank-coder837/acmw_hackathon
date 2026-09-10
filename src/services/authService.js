@@ -10,8 +10,11 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   updateProfile,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth';
-import { auth, isFirebaseConfigured } from '../lib/firebase';
+import { auth, googleProvider, isFirebaseConfigured } from '../lib/firebase';
 
 const ANON_STORAGE_KEY = 'blip_anon_user';
 
@@ -50,17 +53,20 @@ function randomAnonUser() {
 }
 
 function firebaseUserToBlip(fbUser) {
-  const colorIndex = Math.abs(fbUser.uid.charCodeAt(0) + fbUser.uid.charCodeAt(1)) % AVATAR_COLORS.length;
-  const displayName = fbUser.displayName || fbUser.email.split('@')[0];
+  const colorIndex = Math.abs(fbUser.uid.charCodeAt(0) + (fbUser.uid.charCodeAt(1) || 0)) % AVATAR_COLORS.length;
+  const displayName = fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : 'Explorer');
+  const isGoogle = fbUser.providerData?.some((p) => p.providerId === 'google.com');
+
   return {
     uid: fbUser.uid,
     displayName,
     email: fbUser.email,
+    photoURL: fbUser.photoURL || null,
     isAnonymous: false,
-    emailVerified: fbUser.emailVerified,
+    emailVerified: isGoogle ? true : Boolean(fbUser.emailVerified),
     avatarColor: AVATAR_COLORS[colorIndex],
     initials: displayName.substring(0, 2).toUpperCase(),
-    provider: 'email',
+    provider: isGoogle ? 'google' : 'email',
     createdAt: fbUser.metadata?.creationTime ? new Date(fbUser.metadata.creationTime).getTime() : Date.now(),
   };
 }
@@ -328,6 +334,77 @@ export const authService = {
     return newUser;
   },
 
+  // Sign in or sign up with Google
+  async signInWithGoogle() {
+    if (!isFirebaseConfigured || !auth) {
+      // Graceful fallback for demo/preview environments without configured Firebase credentials
+      const googleEmail = 'google.explorer@gmail.com';
+      const googleName = 'Google Explorer';
+      const user = {
+        uid: `google_demo_${Date.now()}`,
+        displayName: googleName,
+        email: googleEmail,
+        photoURL: null,
+        isAnonymous: false,
+        emailVerified: true,
+        avatarColor: 'linear-gradient(135deg, #4285F4, #34A853)',
+        initials: 'GE',
+        provider: 'google',
+        createdAt: Date.now(),
+      };
+      persistDemoUser(user);
+      _currentLocalUser = user;
+      window.dispatchEvent(new CustomEvent('blip_auth_changed', { detail: user }));
+      return { success: true, user };
+    }
+
+    try {
+      const credential = await signInWithPopup(auth, googleProvider);
+      const user = firebaseUserToBlip(credential.user);
+      _currentLocalUser = user;
+      window.dispatchEvent(new CustomEvent('blip_auth_changed', { detail: user }));
+      return { success: true, user };
+    } catch (err) {
+      console.warn('Google sign-in error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        return { error: 'Google sign-in window was closed before finishing.' };
+      }
+      if (err.code === 'auth/popup-blocked') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return { success: true, redirected: true };
+        } catch (_) {
+          return { error: 'Popup blocked by browser. Please enable popups or tap again.' };
+        }
+      }
+      if (err.code === 'auth/unauthorized-domain') {
+        const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'your domain';
+        return {
+          error: `Domain unauthorized in Firebase. Add "${currentHost}" in Firebase Console → Authentication → Settings → Authorized domains.`,
+        };
+      }
+      return { error: mapFirebaseError(err.code) };
+    }
+  },
+
+  // Check redirect result on startup if redirect sign-in was triggered on mobile
+  async checkRedirectResult() {
+    if (isFirebaseConfigured && auth) {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          const user = firebaseUserToBlip(result.user);
+          _currentLocalUser = user;
+          window.dispatchEvent(new CustomEvent('blip_auth_changed', { detail: user }));
+          return user;
+        }
+      } catch (e) {
+        console.warn('Redirect check failed:', e);
+      }
+    }
+    return null;
+  },
+
   // Legacy compat: upgradeAccount used by ProfileModal
   async upgradeAccount(email, displayName) {
     return { email, displayName, isAnonymous: false };
@@ -357,6 +434,12 @@ function mapFirebaseError(code) {
       return 'This link has expired. Please request a new one.';
     case 'auth/invalid-action-code':
       return 'Invalid or already-used link. Please request a new one.';
+    case 'auth/popup-closed-by-user':
+      return 'Google sign-in window was closed before finishing.';
+    case 'auth/cancelled-popup-request':
+      return 'Another sign-in window is already active.';
+    case 'auth/account-exists-with-different-credential':
+      return 'An account already exists with this email under a different sign-in method.';
     default:
       return 'Something went wrong. Please try again.';
   }

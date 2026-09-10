@@ -66,6 +66,11 @@ export default function App() {
 
   // Subscribe to Firebase auth state changes
   useEffect(() => {
+    authService.checkRedirectResult().then((redirectUser) => {
+      if (redirectUser) {
+        setUser(redirectUser);
+      }
+    });
     const unsubscribeAuth = authService.onAuthStateChanged((blipUser) => {
       setUser(blipUser);
     });
